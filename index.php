@@ -4,7 +4,7 @@
  * @author ngocdatbk
  * @copyright 2018
  */
-//echo "fk you";
+echo "fk you";
 phpinfo();
 
 ?>
