@@ -43,6 +43,7 @@ $config = [
             ],
         ],
         'db' => $db,
+
         /*
         'urlManager' => [
             'enablePrettyUrl' => true,
@@ -53,6 +54,11 @@ $config = [
         */
     ],
     'params' => $params,
+    'modules' => [
+        'test' => [
+            'class' => 'app\modules\test\Module',
+        ]
+    ],
 ];
 
 if (YII_ENV_DEV) {
