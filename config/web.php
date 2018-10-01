@@ -11,6 +11,7 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
+    'defaultRoute' => 'test/country',
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
@@ -43,7 +44,12 @@ $config = [
             ],
         ],
         'db' => $db,
-
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'suffix' => '.html',
+//            'rules' => [],
+        ],
         /*
         'urlManager' => [
             'enablePrettyUrl' => true,
