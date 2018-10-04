@@ -5,6 +5,8 @@ namespace app\modules\test\controllers;
 use Yii;
 use app\modules\test\models\Country;
 use app\modules\test\models\CountrySearch;
+use app\modules\test\models\TestEvent;
+use yii\base\Event;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -35,6 +37,11 @@ class CountryController extends Controller
      */
     public function actionIndex()
     {
+        $test_event = new TestEvent();
+        $test_event->on(TestEvent::EVENT_START,['app\modules\test\models\TestEvent','processEvent']);
+        $test_event->start();
+        exit();
+
         $searchModel = new CountrySearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
