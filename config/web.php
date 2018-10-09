@@ -47,17 +47,9 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'suffix' => '.html',
-//            'rules' => [],
-        ],
-        /*
-        'urlManager' => [
-            'enablePrettyUrl' => true,
-            'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
     ],
     'params' => $params,
     'modules' => [
