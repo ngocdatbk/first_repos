@@ -7,6 +7,3 @@ RewriteCond %{REQUEST_FILENAME} !-d
 
 # Otherwise forward the request to index.php
 RewriteRule . index.php
-
-# use index.php as index file
-DirectoryIndex index.php

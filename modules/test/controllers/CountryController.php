@@ -37,11 +37,6 @@ class CountryController extends Controller
      */
     public function actionIndex()
     {
-        $test_event = new TestEvent();
-        $test_event->on(TestEvent::EVENT_START,['app\modules\test\models\TestEvent','processEvent']);
-        $test_event->start();
-        exit();
-
         $searchModel = new CountrySearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
