@@ -2,103 +2,104 @@
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+use Yii;
+use app\models\UserAuth;
+use yii\web\Link; // represents a link object as defined in JSON Hypermedia API Language.
+use yii\web\Linkable;
+use yii\helpers\Url;
+
+/**
+ * This is the model class for table "user".
+ *
+ * @property string $user_id
+ * @property string $username
+ * @property string $gender
+ * @property string $email
+ * @property string $phone_number
+ * @property string $fullname
+ * @property int $is_active
+ * @property int $is_admin
+ * @property string $last_login
+ */
+class User extends \yii\db\ActiveRecord implements Linkable
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
-
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
-
-
     /**
      * {@inheritdoc}
      */
-    public static function findIdentity($id)
+    public static function tableName()
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return 'user';
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public function rules()
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
-    public static function findByUsername($username)
-    {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
+        return [
+            [['username', 'email', 'fullname'], 'required'],
+            [['gender'], 'string'],
+            [['is_active', 'is_admin', 'last_login'], 'integer'],
+            [['username'], 'string', 'max' => 32],
+            [['email', 'fullname'], 'string', 'max' => 100],
+            [['phone_number'], 'string', 'max' => 20],
+            [['email'], 'unique'],
+            [['username'], 'unique'],
+        ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getId()
+    public function attributeLabels()
     {
-        return $this->id;
+        return [
+            'user_id' => 'User ID',
+            'username' => 'Username',
+            'gender' => 'Gender',
+            'email' => 'Email',
+            'phone_number' => 'Phone Number',
+            'fullname' => 'Fullname',
+            'is_active' => 'Is Active',
+            'is_admin' => 'Is Admin',
+            'last_login' => 'Last Login',
+        ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAuthKey()
+    public function getAuth()
     {
-        return $this->authKey;
+        return $this->hasMany(UserAuth::className(), ['user_id' => 'user_id']);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function validateAuthKey($authKey)
+    public function fields()
     {
-        return $this->authKey === $authKey;
+        return [
+            'user_id',
+            'username',
+            'gender',
+            'email',
+            'fullname',
+            'is_active',
+            'is_admin',
+        ];
     }
 
-    /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
-     */
-    public function validatePassword($password)
+    public function extraFields()
     {
-        return $this->password === $password;
+        return [
+            'auth',
+            'status' => function ($model) {
+                return 1;
+            },
+        ];
+    }
+
+    public function getLinks()
+    {
+        return [
+            Link::REL_SELF => Url::to(['user/view', 'id' => $this->user_id], true),
+            'edit' => Url::to(['user/view', 'id' => $this->user_id], true),
+            'index' => Url::to(['users'], true),
+        ];
     }
 }
