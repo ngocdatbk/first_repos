@@ -30,6 +30,7 @@ class UserAuth extends \yii\db\ActiveRecord
             [['user_id', 'auth_key', 'password_hash'], 'required'],
             [['user_id'], 'integer'],
             [['auth_key'], 'string', 'max' => 32],
+            [['access_token'], 'string', 'max' => 32],
             [['password_hash'], 'string', 'max' => 60],
             [['user_id'], 'unique'],
         ];

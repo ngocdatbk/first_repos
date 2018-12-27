@@ -4,9 +4,7 @@ namespace app\models;
 
 use Yii;
 use app\models\UserAuth;
-use yii\web\Link; // represents a link object as defined in JSON Hypermedia API Language.
-use yii\web\Linkable;
-use yii\helpers\Url;
+use yii\base\NotSupportedException;
 
 /**
  * This is the model class for table "user".
@@ -21,7 +19,7 @@ use yii\helpers\Url;
  * @property int $is_admin
  * @property string $last_login
  */
-class User extends \yii\db\ActiveRecord implements Linkable
+class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     /**
      * {@inheritdoc}
@@ -66,40 +64,75 @@ class User extends \yii\db\ActiveRecord implements Linkable
         ];
     }
 
-    public function getAuth()
+    public static function findByEmail($email)
     {
-        return $this->hasMany(UserAuth::className(), ['user_id' => 'user_id']);
+        return static::findOne(['email' => $email]);
     }
 
-    public function fields()
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id)
     {
-        return [
-            'user_id',
-            'username',
-            'gender',
-            'email',
-            'fullname',
-            'is_active',
-            'is_admin',
-        ];
+        $loggedUserId = Yii::$app->session->get('loggedUserId');
+
+        if ($loggedUserId && $viewAsData = Yii::$app->dataRegistry->get('viewAsUser')) {
+            if (isset($viewAsData[$loggedUserId]['viewAsUserId']) && $id == $loggedUserId) {
+                $id = $viewAsData[$loggedUserId]['viewAsUserId'];
+            }
+        }
+
+        return static::findOne($id);
     }
 
-    public function extraFields()
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
     {
-        return [
-            'auth',
-            'status' => function ($model) {
-                return 1;
-            },
-        ];
+        $userAuth = UserAuth::find()->where(['access_token' => $token])->one();
+        if ($userAuth) {
+            return static::findIdentity($userAuth->user_id);
+        }
+        return null;
     }
 
-    public function getLinks()
+    /**
+     * @inheritdoc
+     */
+    public function getId()
     {
-        return [
-            Link::REL_SELF => Url::to(['user/view', 'id' => $this->user_id], true),
-            'edit' => Url::to(['user/view', 'id' => $this->user_id], true),
-            'index' => Url::to(['users'], true),
-        ];
+        return $this->getPrimaryKey();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAuthKey()
+    {
+        $userAuth = $this->_getUserAuth();
+
+        if ($userAuth === null) {
+            throw new NotSupportedException('"getAuthKey" is not implemented.');
+        }
+
+        return $userAuth->auth_key;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function validateAuthKey($authKey)
+    {
+        return $this->getAuthKey() === $authKey;
+    }
+
+    private function _getUserAuth()
+    {
+        if ($this->_userAuth === false) {
+            $this->_userAuth = UserAuth::findOne(['user_id' => $this->user_id]);
+        }
+
+        return $this->_userAuth;
     }
 }

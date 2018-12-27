@@ -7,6 +7,7 @@
  */
 namespace app\controllers;
 
+use Yii;
 use yii\rest\ActiveController;
 use yii\web\Response;
 use yii\filters\auth\CompositeAuth;
@@ -16,9 +17,9 @@ use yii\filters\auth\QueryParamAuth;
 
 
 
-class UserController extends ActiveController
+class ProductController extends ActiveController
 {
-    public $modelClass = 'app\models\User';
+    public $modelClass = 'app\models\Product';
     public $serializer = [
         'class' => 'yii\rest\Serializer',
         'collectionEnvelope' => 'items',
@@ -50,5 +51,20 @@ class UserController extends ActiveController
         $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
+    }
+
+    public function checkAccess($action, $model = null, $params = [])
+    {
+        if (
+        (($action === 'view' || $action === 'index') && !Yii::$app->user->can('ViewProduct'))
+        ||
+        ($action === 'create' && !Yii::$app->user->can('CreateProduct'))
+        ||
+        ($action === 'update' && !Yii::$app->user->can('UpdateProduct'))
+        ||
+        ($action === 'delete' && !Yii::$app->user->can('DeleteProduct'))
+        ) {
+            throw new \yii\web\ForbiddenHttpException(sprintf('You have no permission'));
+        }
     }
 }

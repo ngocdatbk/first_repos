@@ -37,6 +37,11 @@ $config = [
             'enableSession' => false,
             'loginUrl' => null
         ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+            // uncomment if you want to cache RBAC items hierarchy
+            // 'cache' => 'cache',
+        ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
@@ -62,15 +67,13 @@ $config = [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'user'],
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'product']],
             ],
         ],
     ],
     'params' => $params,
     'modules' => [
-        'test' => [
-            'class' => 'app\modules\test\Module',
-        ]
+
     ],
 ];
 
