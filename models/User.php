@@ -19,8 +19,10 @@ use yii\base\NotSupportedException;
  * @property int $is_admin
  * @property string $last_login
  */
-class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface, \yii\filters\RateLimitInterface
 {
+    const  RATELIMIT = 5;
+    const TIME_PERIOD = 5;
     /**
      * {@inheritdoc}
      */
@@ -37,7 +39,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return [
             [['username', 'email', 'fullname'], 'required'],
             [['gender'], 'string'],
-            [['is_active', 'is_admin', 'last_login'], 'integer'],
+            [['is_active', 'is_admin', 'last_login', 'allowance', 'allowance_updated_at'], 'integer'],
             [['username'], 'string', 'max' => 32],
             [['email', 'fullname'], 'string', 'max' => 100],
             [['phone_number'], 'string', 'max' => 20],
@@ -134,5 +136,23 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
 
         return $this->_userAuth;
+    }
+
+
+    public function getRateLimit($request, $action)
+    {
+        return [static::RATELIMIT, static::TIME_PERIOD]; // $rateLimit requests per second
+    }
+
+    public function loadAllowance($request, $action)
+    {
+        return [$this->allowance, $this->allowance_updated_at];
+    }
+
+    public function saveAllowance($request, $action, $allowance, $timestamp)
+    {
+        $this->allowance = $allowance;
+        $this->allowance_updated_at = $timestamp;
+        $this->save();
     }
 }

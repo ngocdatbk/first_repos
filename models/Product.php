@@ -68,7 +68,6 @@ class Product extends \yii\db\ActiveRecord  implements Linkable
             'id',
             'code',
             'name',
-            'info',
             'price',
             'image_main',
             'category_id',
