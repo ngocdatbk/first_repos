@@ -16,8 +16,6 @@ use yii\filters\auth\HttpBearerAuth;
 use yii\filters\auth\QueryParamAuth;
 use yii\helpers\ArrayHelper;
 
-
-
 class ProductController extends ActiveController
 {
     public $modelClass = 'app\modules\v1\models\Product';
